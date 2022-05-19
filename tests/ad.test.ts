@@ -1,16 +1,49 @@
 import {AdRecord} from "../records/ad.record";
+import {pool} from "../utils/db";
+import {AdEntity} from "../types";
 
-test('AdRecord returns data from database for one entry', async () =>{
-   const ad = await AdRecord.getOne('abc');
-
-   expect(ad).toBeDefined();
-   expect(ad.id).toBe('abc');
-   expect(ad.name).toBe('Dejv');
+afterAll(async () => {
+    await pool.end();
 });
 
-test('AdRecord returns null from database for unexisting entry', async () => {
-   const ad = await AdRecord.getOne('---');
+test('AdRecord returns data from database for one entry.', async () => {
+    const ad = await AdRecord.getOne('abc');
 
-   expect(ad).toBeNull();
-   
+    expect(ad).toBeDefined();
+    expect(ad.id).toBe('abc');
+    expect(ad.name).toBe('Dejv');
+});
+
+test('AdRecord.getOne returns null from database for unexisting entry.', async () => {
+    const ad = await AdRecord.getOne('---');
+
+    expect(ad).toBeNull();
+
+});
+
+test('AdRecord.findAll returns array of found entries.', async () => {
+    const ads = await AdRecord.findAll('');
+
+    expect(ads).not.toEqual([]);
+    expect(ads[0].id).toBeDefined();
+});
+
+test('AdRecord.findAll returns array of found entries when searching for "a".', async () => {
+    const ads = await AdRecord.findAll('e');
+
+    expect(ads).not.toEqual([]);
+    expect(ads[0].id).toBeDefined();
+});
+
+test('AdRecord.findAll returns empty array of when searching for something what does not exist.', async () => {
+    const ads = await AdRecord.findAll('------------');
+
+    expect(ads).toEqual([]);
+});
+
+test('AdRecord.findAll returns reduced amount of data.', async () => {
+    const ads = await AdRecord.findAll('');
+
+    expect((ads[0] as AdEntity).price).toBeUndefined();
+    expect((ads[0] as AdEntity).description).toBeUndefined();
 });
